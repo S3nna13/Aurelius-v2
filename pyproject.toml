@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aurelius-v2"
+version = "2.0.0"
+description = "Aurelius v2 — three-model AI runtime with native skills, CUA, and DAIES governance."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn>=0.30",
+  "pydantic>=2.0",
+  "rich>=13.7",
+  "numpy>=1.26",
+  "torch>=2.4",
+  "safetensors>=0.4",
+]
+
+[project.scripts]
+aurelius = "aurelius_cli.v2_cli:main_v2"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "aurelius_cli*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["src/runtime"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "aurelius_cli"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
