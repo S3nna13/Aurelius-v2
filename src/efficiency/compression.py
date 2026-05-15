@@ -15,7 +15,8 @@ class KVCacheCompressor:
     - Token merging for redundant tokens
     - Layer-wise compression ratios
     """
-    compression_ratio: float = 0.5  # target compression
+
+    compression_ratio: float = 0.5
     method: str = "pca"  # pca, token_merge, sparse
 
     def compress(self, kv_cache: Any, context_len: int) -> tuple[Any, int]:
@@ -37,6 +38,7 @@ class ContextCompressor:
     - Summarizing long documents for the model
     - Reranking and selecting most relevant context
     """
+
     target_compression_ratio: float = 0.5
     preserve_entities: bool = True
     preserve_code: bool = True
@@ -47,14 +49,17 @@ class ContextCompressor:
         ratio = target_ratio or self.target_compression_ratio
         if len(text) < 1000:
             return text  # Don't compress short text
-        
+
         # In production: LLM-based summarization or extractive compression
         # Placeholder: truncate preserving start and end
         target_len = max(int(len(text) * ratio), 100)
         if target_len >= len(text):
             return text
-        head = text[:target_len // 2]
-        tail = text[-(target_len - target_len // 2):]
-        return f"{head}
-[... compressed content omitted ...]
-{tail}"
+
+        head = text[: target_len // 2]
+        tail = text[-(target_len - target_len // 2) :]
+        return (
+            f"{head}\n"
+            "[... compressed content omitted ...]\n"
+            f"{tail}"
+        )

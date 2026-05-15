@@ -90,22 +90,22 @@ class ExportValidator:
 
     def validate_all(self, path: str, ref_tokenizer: str = "") -> ExportValidationResult:
         result = ExportValidationResult(format=ExportFormat.SAFETENSORS)
-        
+
         load_ok, load_msg = self.validate_load(path)
         if not load_ok:
             result.errors.append(f"Load: {load_msg}")
             result.load_ok = False
-        
+
         gen_ok, gen_msg = self.validate_generate(path)
         if not gen_ok:
             result.errors.append(f"Generate: {gen_msg}")
             result.generate_ok = False
-        
+
         tok_ok, tok_msg = self.validate_tokenizer_parity(path, ref_tokenizer)
         if not tok_ok:
             result.errors.append(f"Tokenizer: {tok_msg}")
             result.tokenizer_parity_ok = False
-        
+
         ctrl_ok, ctrl_missing = self.validate_control_tokens(path)
         if not ctrl_ok:
             result.errors.append(f"Missing control tokens: {', '.join(ctrl_missing)}")

@@ -92,7 +92,7 @@ class PagedKVCache:
         """Allocate a KV cache block. Returns block_id or None if full."""
         if not self._free_blocks:
             return None
-        
+
         block_id = self._free_blocks.pop(0)
         self._allocated[block_id] = KVBlock(
             block_id=block_id,

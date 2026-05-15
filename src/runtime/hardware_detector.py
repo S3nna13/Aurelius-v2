@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import platform
 import subprocess
+import sys
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -33,6 +34,23 @@ class HardwareInfo:
     os_name: str = ""
     is_jetson: bool = False
     jetson_model: str = ""
+
+    @property
+    def gpu_vram_gb(self) -> float:
+        """Return total GPU VRAM or unified memory when applicable."""
+        if self.unified_memory:
+            return self.unified_memory_gb
+        return round(
+            sum(float(g.get("vram_gb", 0.0)) for g in self.gpu_info),
+            1,
+        )
+
+    @property
+    def gpu_name(self) -> str:
+        """Return the primary GPU/device name when available."""
+        if self.gpu_info:
+            return str(self.gpu_info[0].get("name", ""))
+        return ""
 
 
 class HardwareDetector:
@@ -167,7 +185,7 @@ def _probe_mlx(info: HardwareInfo) -> None:
     """Check if Apple MLX is available."""
     try:
         result = subprocess.run(
-            [platform.sys.executable, "-c", "import mlx; print(mlx.__version__)"],
+            [sys.executable, "-c", "import mlx; print(mlx.__version__)"],
             capture_output=True, text=True, timeout=5,
         )
         if result.returncode == 0:

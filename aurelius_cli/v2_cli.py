@@ -37,15 +37,15 @@ def cmd_doctor() -> int:
     import platform
     import sys
     con = _console()
-    
+
     results: list[dict] = []
-    
+
     # Python version
     results.append({"check": "Python version", "status": "ok", "detail": sys.version})
-    
+
     # OS
     results.append({"check": "OS", "status": "ok", "detail": f"{platform.system()} {platform.release()}"})
-    
+
     # Key dependencies
     deps = ["numpy", "torch", "safetensors", "pydantic", "rich", "mlx", "transformers", "cuda"]
     for dep in deps:
@@ -61,7 +61,7 @@ def cmd_doctor() -> int:
                 results.append({"check": dep, "status": "ok", "detail": v})
         except ImportError:
             results.append({"check": dep, "status": "missing", "detail": "not installed"})
-    
+
     # Print results
     if con:
         table = Table(title="Aurelius Doctor — System Health")
@@ -77,7 +77,7 @@ def cmd_doctor() -> int:
         print("=" * 60)
         for r in results:
             print(f"  {r['check']:20s} [{r['status']:7s}] {r['detail']}")
-    
+
     missing = [r for r in results if r["status"] == "missing"]
     if missing:
         print(f"\nMissing dependencies: {', '.join(r['check'] for r in missing)}")
@@ -92,7 +92,7 @@ def cmd_hardware_detect() -> int:
         detector = HardwareDetector()
         info = detector.detect()
         profile = detector.recommend_profile(info)
-        
+
         con = _console()
         if con:
             panel = Panel(
@@ -127,10 +127,10 @@ def cmd_skills_list(category: str | None = None) -> int:
         from src.skills.registry import SkillRegistry
         registry = SkillRegistry()
         count = registry.discover_from_path()
-        
+
         skills = registry.list_skills(category)
         con = _console()
-        
+
         if con:
             table = Table(title=f"Aurelius Native Skills ({len(skills)} loaded, {count} discovered)")
             table.add_column("ID", style="cyan")
@@ -147,7 +147,7 @@ def cmd_skills_list(category: str | None = None) -> int:
             print("=" * 60)
             for s in skills:
                 print(f"  {s.manifest.id:40s} [{s.manifest.risk_level.value:8s}] {s.manifest.name}")
-        
+
         stats = registry.stats()
         print(f"\nStats: {json.dumps(stats, indent=2)}")
     except ImportError as e:
@@ -161,13 +161,13 @@ def cmd_daies_quick() -> int:
     try:
         from src.skills.registry import SkillRegistry
         from src.skills.validator import SkillValidator
-        
+
         registry = SkillRegistry()
         count = registry.discover_from_path()
         validator = SkillValidator()
-        
+
         results = {"total_checked": 0, "passed": 0, "failed": 0, "errors": []}
-        
+
         for entry in registry.list_skills():
             results["total_checked"] += 1
             report = validator.validate(entry.manifest)
@@ -176,7 +176,7 @@ def cmd_daies_quick() -> int:
             else:
                 results["failed"] += 1
                 results["errors"].append({"skill": entry.manifest.id, "errors": report.manifest_errors})
-        
+
         con = _console()
         if con:
             from rich.table import Table
@@ -185,13 +185,13 @@ def cmd_daies_quick() -> int:
             table.add_column("Result")
             table.add_column("Detail")
             table.add_row("Skills Discovered", f"{count}", "builtin skills loaded")
-            table.add_row("Manifest Validation", f"{results['passed']}/{results['total_checked']}", 
+            table.add_row("Manifest Validation", f"{results['passed']}/{results['total_checked']}",
                           "passed" if results["failed"] == 0 else f"{results['failed']} failures")
             table.add_row("No Silent Fallback", "CHECKED", "all manifests specify model truth")
             con.print(table)
         else:
             print(f"DAIES Quick Gate: {results['passed']}/{results['total_checked']} passed, {results['failed']} failed")
-        
+
         return 0 if results["failed"] == 0 else 1
     except ImportError as e:
         print(f"ERROR: {e}")
@@ -204,22 +204,22 @@ def cmd_status() -> int:
         from src.runtime.hardware_detector import HardwareDetector
         from src.runtime.memory_budget import MemoryBudgetConfig, MemoryBudgetManager
         from src.skills.registry import SkillRegistry
-        
+
         # Hardware
         hw = HardwareDetector()
         info = hw.detect()
-        
+
         # Memory budget
         config = MemoryBudgetConfig(total_memory_gb=info.total_ram_gb)
         budget_mgr = MemoryBudgetManager(config)
         budget_mgr.update_consumer("weights_gb", 3.0)
         budget_mgr.update_consumer("kv_cache_gb", 1.0)
         report = budget_mgr.generate_report()
-        
+
         # Skills
         registry = SkillRegistry()
         skill_count = registry.discover_from_path()
-        
+
         print("Aurelius v2 Status")
         print(f"{'='*50}")
         print(f"  Hardware: {info.cpu_arch} | RAM: {info.total_ram_gb}GB")
@@ -257,9 +257,9 @@ def main_v2() -> int:
         print("Usage: python -m aurelius_cli.v2_cli <command> [args]")
         print("Commands: doctor, hardware, skills, daies, status, serve, ui")
         return 1
-    
+
     command = sys.argv[1]
-    
+
     if command == "doctor":
         return cmd_doctor()
     elif command == "hardware":

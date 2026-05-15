@@ -31,20 +31,51 @@ class TestMemoryBudget(unittest.TestCase):
 
 class TestCapabilityReport(unittest.TestCase):
     def test_full_local_report(self):
-        report = CapabilityReport.create_full_local(model="forge", backend="mlx", artifact="forge-q4-mlx", context=32768, hardware="mac_silicon_32gb")
+        report = CapabilityReport.create_full_local(
+            model="forge",
+            backend="mlx",
+            artifact="forge-q4-mlx",
+            context=32768,
+            hardware="mac_silicon_32gb",
+        )
         self.assertTrue(report.is_live())
 
     def test_silent_fallback_detection(self):
-        report = CapabilityReport(requested_model="atlas", actual_model="swift", execution_mode=CapabilityMode.VERIFIER_ONLY, backend="remote_aurelius", artifact="swift-q3-gguf", quantization="q3", context_budget=4096, local_or_remote="remote", hardware_profile="jetson_nano_4gb")
+        report = CapabilityReport(
+            requested_model="atlas",
+            actual_model="swift",
+            execution_mode=CapabilityMode.VERIFIER_ONLY,
+            backend="remote_aurelius",
+            artifact="swift-q3-gguf",
+            quantization="q3",
+            context_budget=4096,
+            local_or_remote="remote",
+            hardware_profile="jetson_nano_4gb",
+        )
         self.assertTrue(report.has_silent_fallback())
 
 class TestSkillManifest(unittest.TestCase):
     def test_valid_manifest(self):
-        m = SkillManifest(id="coding.test", name="Test", version="1.0.0", category="coding", summary="test", entrypoint="skills.builtin.coding.test:run")
+        m = SkillManifest(
+            id="coding.test",
+            name="Test",
+            version="1.0.0",
+            category="coding",
+            summary="test",
+            entrypoint="skills.builtin.coding.test:run",
+        )
         self.assertEqual(m.validate(), [])
 
     def test_high_risk_must_support_dry_run(self):
-        m = SkillManifest(id="security.audit", name="Audit", version="1.0.0", category="security", summary="test", risk_level=RiskLevel.CRITICAL, supported_modes=[SkillExecutionMode.EXECUTE])
+        m = SkillManifest(
+            id="security.audit",
+            name="Audit",
+            version="1.0.0",
+            category="security",
+            summary="test",
+            risk_level=RiskLevel.CRITICAL,
+            supported_modes=[SkillExecutionMode.EXECUTE],
+        )
         errors = m.validate()
         self.assertTrue(any("dry_run" in e for e in errors))
 
