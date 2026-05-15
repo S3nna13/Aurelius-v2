@@ -8,6 +8,7 @@ Usage:
     aurelius hardware detect # Detect hardware
     aurelius profile use     # Use a hardware profile
     aurelius skills list     # List native skills
+    aurelius skills suggest  # Suggest matching skills for a prompt
     aurelius daies quick     # Run quick DAIES gate
     aurelius serve           # Start runtime API server
     aurelius ui              # Open Mission Control UI
@@ -156,6 +157,37 @@ def cmd_skills_list(category: str | None = None) -> int:
     return 0
 
 
+def cmd_skills_suggest(query: str) -> int:
+    """Suggest skills that match a query using the trigger engine."""
+    try:
+        from src.agent.skill_trigger_engine import SkillTriggerEngine
+        from src.skills.registry import SkillRegistry
+
+        registry = SkillRegistry()
+        registry.discover_from_path()
+        engine = SkillTriggerEngine(registry=registry)
+        result = engine.match(query)
+        payload = {
+            "query": query,
+            "count": len(result.matches),
+            "matches": [
+                {
+                    "skill_id": match.skill_id,
+                    "name": match.name,
+                    "trigger_pattern": match.trigger_pattern,
+                    "confidence": round(match.confidence, 3),
+                    "summary": match.summary,
+                }
+                for match in result.matches
+            ],
+        }
+        print(json.dumps(payload, indent=2))
+    except ImportError as e:
+        print(f"ERROR: {e}")
+        return 1
+    return 0
+
+
 def cmd_daies_quick() -> int:
     """Run quick DAIES gate check."""
     try:
@@ -255,7 +287,7 @@ def main_v2() -> int:
     """Entry point for v2 commands when invoked directly."""
     if len(sys.argv) < 2:
         print("Usage: python -m aurelius_cli.v2_cli <command> [args]")
-        print("Commands: doctor, hardware, skills, daies, status, serve, ui")
+        print("Commands: doctor, hardware, skills, daies, status, serve, ui, skills suggest")
         return 1
 
     command = sys.argv[1]
@@ -267,9 +299,15 @@ def main_v2() -> int:
             return cmd_hardware_detect()
         return 1
     elif command == "skills":
-        if len(sys.argv) > 2 and sys.argv[2] in ("list",):
+        if len(sys.argv) > 2 and sys.argv[2] == "list":
             cat = sys.argv[3] if len(sys.argv) > 3 else None
             return cmd_skills_list(cat)
+        if len(sys.argv) > 2 and sys.argv[2] == "suggest":
+            query = " ".join(sys.argv[3:]).strip()
+            if not query:
+                print("Usage: aurelius skills suggest <query>")
+                return 1
+            return cmd_skills_suggest(query)
         return 0
     elif command == "daies":
         if len(sys.argv) > 2 and sys.argv[2] in ("quick",):

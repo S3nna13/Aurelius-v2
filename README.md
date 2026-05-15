@@ -52,6 +52,9 @@ aurelius chat
 # List 150 native skills
 aurelius skills list
 
+# Suggest relevant skills for a prompt
+aurelius skills suggest "review this code"
+
 # Quick DAIES validation
 aurelius daies quick
 
@@ -64,6 +67,8 @@ aurelius serve --port 8000
 # Open Mission Control UI
 aurelius ui
 ```
+
+The original Aurelius trigger-engine and workflow-DAG ideas are now ported into `src/agent/`, and `aurelius skills suggest` uses the trigger engine to surface likely skills for a prompt.
 
 ## The Three Models
 
