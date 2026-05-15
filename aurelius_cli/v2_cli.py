@@ -10,6 +10,7 @@ Usage:
     aurelius skills list     # List native skills
     aurelius skills suggest  # Suggest matching skills for a prompt
     aurelius daies quick     # Run quick DAIES gate
+    aurelius schedule        # Schedule cron/interval/delayed shell jobs
     aurelius serve           # Start runtime API server
     aurelius ui              # Open Mission Control UI
 """
@@ -287,7 +288,7 @@ def main_v2() -> int:
     """Entry point for v2 commands when invoked directly."""
     if len(sys.argv) < 2:
         print("Usage: python -m aurelius_cli.v2_cli <command> [args]")
-        print("Commands: doctor, hardware, skills, daies, status, serve, ui, skills suggest")
+        print("Commands: doctor, hardware, skills, daies, schedule, status, serve, ui, skills suggest")
         return 1
 
     command = sys.argv[1]
@@ -313,6 +314,10 @@ def main_v2() -> int:
         if len(sys.argv) > 2 and sys.argv[2] in ("quick",):
             return cmd_daies_quick()
         return 0
+    elif command == "schedule":
+        from aurelius_cli.scheduler_commands import main_schedule
+
+        return main_schedule(sys.argv[2:])
     elif command == "status":
         return cmd_status()
     elif command == "serve":

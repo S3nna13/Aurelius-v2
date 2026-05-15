@@ -58,6 +58,9 @@ aurelius skills suggest "review this code"
 # Quick DAIES validation
 aurelius daies quick
 
+# Inspect scheduled jobs
+aurelius schedule list
+
 # Show current status
 aurelius status
 
@@ -68,7 +71,7 @@ aurelius serve --port 8000
 aurelius ui
 ```
 
-The original Aurelius trigger-engine and workflow-DAG ideas are now ported into `src/agent/`, and `aurelius skills suggest` uses the trigger engine to surface likely skills for a prompt.
+The original Aurelius trigger-engine, workflow-DAG, task scheduler, and MCP client ideas are now ported into `src/agent/`, and `aurelius skills suggest` uses the trigger engine to surface likely skills for a prompt.
 
 ## The Three Models
 
@@ -173,7 +176,7 @@ aurelius skills run <id>      # Execute a skill
 aurelius skills audit         # Audit all skills
 aurelius tools                # List/manage tools
 aurelius mcp                  # MCP server management
-aurelius cron                 # Scheduled jobs
+aurelius schedule             # Scheduled jobs
 aurelius sessions             # Session management
 aurelius checkpoint           # Workspace snapshots
 aurelius serve                # Start API server
